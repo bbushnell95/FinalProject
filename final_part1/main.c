@@ -5,25 +5,25 @@
 #include "timer.h"
 #include "config.h"
 #include "interrupt.h"
+#include "led.h"
 
 #define TRIS_pin1 TRISBbits.TRISB10
 #define TRIS_pin2 TRISBbits.TRISB12
 #define TRIS_leftPin TRISBbits.TRISB0
 #define TRIS_rightPin TRISBbits.TRISB2
 #define TRIS_frontPin TRISBbits.TRISB4
-#define TRIS_backPin TRISBbits.TRISB6
 
 #define pin1 LATBbits.LATB10
 #define pin2 LATBbits.LATB12 
 
 #define leftPin LATBbits.LATB0  
 #define rightPin LATBbits.LATB2
-#define frontPin LATBbits.LATB4
-#define backPin LATBbits.LATB6
+#define frontPin LATBbits.LATB4     
 
-#define leftSensor LATDbits.LATD0       //change these later
-#define middleSensor LATDbits.LATD1
-#define rightSensor LATDbits.LATD2
+#define ledLeft LATDbits.LATD2       
+#define ledFront LATDbits.LATD1
+#define ledRight LATDbits.LATD0
+
 
 #define ON 1
 #define OFF 0
@@ -33,13 +33,13 @@
 #define leftWheel OC2RS
 #define rightWheel OC4RS
 
-void displayVoltage();       //used to write the output voltage to the LCD
-char* buildString(float value);
-int readFromADC();
-
 typedef enum stateTypeEnum{
-    Forward, Backwards
+    lineUp, Drive
 } stateType;
+
+void readFromADC();
+void adjustLED();
+void lineUP();
 
 volatile int val = 0;
 volatile int switchFlag = 0;
@@ -58,34 +58,51 @@ int main(void){
     enableInterrupts();
     initTimer1();
     initTimer4();
-    initLCD();
     initADC();
     initPWM();
+    initLEDs();
 
-    int State = Forward;
+    int State=lineUp;
     
     TRIS_pin1 = OUTPUT;
     TRIS_pin2 = OUTPUT;
     TRIS_leftPin = INPUT;
     TRIS_rightPin = INPUT;
     TRIS_frontPin = INPUT;
-    TRIS_backPin = INPUT;
     
     pin1=ON;
     pin2=OFF;
     while(1){
-        //read from the three sensors
-        readFromADC();
-        calculateODC();
-        
-        //if left is higher OC2RS goes low/oc4rs goes high
-        //if right is higher oc4rs goes low/oc2rs goes high
-        //if middle is highest stay the same
-        
-        
-        //if all three read same voltage turn around
-        
+        switch(State){
+                case lineUp:
+                    readFromADC();
+                    lineUP();
+                    if(ledLeft == ON && ledFront == ON && ledRight == ON){
+                        if (switchFlag == 1){
+                            State = Drive;
+                        }
+                    }
+                    switchFlag = 0;
+                    delayMs(20);
+                    break;
+                case Drive:
+                    
+                    readFromADC();
+                    adjustLED();
+                    calculateODC();
+                    delayMs(20);
+                    
+                    break;
+        }
     }
+}
+
+void __ISR(_CHANGE_NOTICE_VECTOR, IPL7SRS) _CNInterrupt()
+{
+    PORTD;
+    IFS1bits.CNDIF = 0;       //set switch flag back down
+    switchFlag = 1;
+    pressCount++;
 }
 
 //controls the speed of the wheels
@@ -94,7 +111,7 @@ int main(void){
 
 void calculateODC(){
     if (endFlag == 0){
-        if(left>1000 && right>1000){
+        if(left>1000 && right>1000 && front>1000){
            endFlag = 1;
            leftWheel = 0;
            rightWheel=7500;
@@ -124,14 +141,56 @@ void calculateODC(){
     }
 }
 
-int readFromADC(){
+void readFromADC(){
     if(IFS0bits.AD1IF == 1){
         int *buffer = &ADC1BUF0;
         left = *buffer;
         right = *(buffer+1);
-        //front = *(buffer+2);
+        front = *(buffer+2);
         //back = *(buffer+3);
         
         IFS0bits.AD1IF = 0;
+    }
+}
+
+void adjustLED(){
+    if (left>1000){
+        ledLeft = ON;
+    }
+    else{
+        ledLeft = OFF;
+    }
+    if (front>1000){
+        ledFront = ON;
+    }
+    else{
+        ledFront = OFF;
+    }
+    if (right>1000){
+        ledRight = ON;
+    }
+    else{
+        ledRight = OFF;
+    }
+}
+
+void lineUP(){
+    if (left<1000){
+        ledLeft = ON;
+    }
+    else{
+        ledLeft = OFF;
+    }
+    if (front>1000){
+        ledFront = ON;
+    }
+    else{
+        ledFront = OFF;
+    }
+    if (right<1000){
+        ledRight = ON;
+    }
+    else{
+        ledRight = OFF;
     }
 }
