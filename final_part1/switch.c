@@ -3,11 +3,11 @@
 
 
 #define TRIS_RD6 TRISDbits.TRISD6
-#define OUTPUT 1
+#define INPUT 1
 
 
 void initSwitch(){
-    TRIS_RD6 = OUTPUT;
+    TRIS_RD6 = INPUT;
     
     CNPUDbits.CNPUD6=1;
     CNCONDbits.ON=1;        //turn on CN for port D

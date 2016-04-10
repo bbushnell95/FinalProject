@@ -17,5 +17,9 @@ void initADC(){
     AD1CHSbits.CH0NA = 0; // Use Vref- as negative reference
     AD1CHSbits.CH0SA = 0; // Scan AN0 at least
     IFS0bits.AD1IF = 0; // Put down ADC flag
+    AD1CSSLbits.CSSL0=1;    //turn on scaning for AN0
+    AD1CSSLbits.CSSL2=1;    //turn on scanning for AN2
+    AD1CSSLbits.CSSL4=1;    //turn on scanning for AN4
     AD1CON1bits.ADON = 1; // turn on the ADC
+    
 }

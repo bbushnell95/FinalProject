@@ -18,7 +18,7 @@ void initLEDs(){                    //initializes LEDs
     TRISDbits.TRISD2=OUTPUT;
     
     LATDbits.LATD0 = OFF;
-    LATDbits.LATD1 = OFF;
+    //LATDbits.LATD1 = ON;
     LATDbits.LATD2 = OFF;
     
 }

@@ -6,6 +6,7 @@
 #include "config.h"
 #include "interrupt.h"
 #include "led.h"
+#include "switch.h"
 
 #define TRIS_pin1 TRISBbits.TRISB10
 #define TRIS_pin2 TRISBbits.TRISB12
@@ -56,11 +57,13 @@ int endFlag = 0;
 int main(void){
     SYSTEMConfigPerformance(10000000);
     enableInterrupts();
+    initLEDs();
     initTimer1();
     initTimer4();
     initADC();
     initPWM();
-    initLEDs();
+    initSwitch();
+    
 
     int State=lineUp;
     
@@ -77,7 +80,7 @@ int main(void){
                 case lineUp:
                     readFromADC();
                     lineUP();
-                    if(ledLeft == ON && ledFront == ON && ledRight == ON){
+                    if(ledLeft == ON  && ledRight == ON){    //&& ledRight == ON
                         if (switchFlag == 1){
                             State = Drive;
                         }
@@ -86,7 +89,8 @@ int main(void){
                     delayMs(20);
                     break;
                 case Drive:
-                    
+                    //leftWheel=10000;
+                    //rightWheel=10000;
                     readFromADC();
                     adjustLED();
                     calculateODC();
@@ -102,7 +106,6 @@ void __ISR(_CHANGE_NOTICE_VECTOR, IPL7SRS) _CNInterrupt()
     PORTD;
     IFS1bits.CNDIF = 0;       //set switch flag back down
     switchFlag = 1;
-    pressCount++;
 }
 
 //controls the speed of the wheels
@@ -111,16 +114,16 @@ void __ISR(_CHANGE_NOTICE_VECTOR, IPL7SRS) _CNInterrupt()
 
 void calculateODC(){
     if (endFlag == 0){
-        if(left>1000 && right>1000 && front>1000){
+        if(left<30 && right<30){
            endFlag = 1;
            leftWheel = 0;
            rightWheel=7500;
         }
-        else if(left>1000){
+        else if(left<30){
             leftWheel = 5000;
             rightWheel=6000;
         }
-        else if(right>1000){
+        else if(right<30){
             leftWheel = 6000;
             rightWheel=5000;  
         }
@@ -131,7 +134,7 @@ void calculateODC(){
     }
     else if(endFlag == 1){
         while (endFlag == 1){
-            if(left < 1000 && right < 1000){
+            if(left < 30 && right < 30){
                 endFlag = 0;
                 leftWheel = 6000;
                 rightWheel= 6000;
@@ -143,30 +146,23 @@ void calculateODC(){
 
 void readFromADC(){
     if(IFS0bits.AD1IF == 1){
-        int *buffer = &ADC1BUF0;
+        volatile int *buffer = &ADC1BUF0;
         left = *buffer;
         right = *(buffer+1);
         front = *(buffer+2);
-        //back = *(buffer+3);
         
         IFS0bits.AD1IF = 0;
     }
 }
 
 void adjustLED(){
-    if (left>1000){
+    if (left > 30){
         ledLeft = ON;
     }
     else{
         ledLeft = OFF;
     }
-    if (front>1000){
-        ledFront = ON;
-    }
-    else{
-        ledFront = OFF;
-    }
-    if (right>1000){
+    if (right > 30){
         ledRight = ON;
     }
     else{
@@ -175,19 +171,13 @@ void adjustLED(){
 }
 
 void lineUP(){
-    if (left<1000){
+    if (left > 30){
         ledLeft = ON;
     }
     else{
         ledLeft = OFF;
     }
-    if (front>1000){
-        ledFront = ON;
-    }
-    else{
-        ledFront = OFF;
-    }
-    if (right<1000){
+    if (right > 30){
         ledRight = ON;
     }
     else{
