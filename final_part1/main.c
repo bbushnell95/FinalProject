@@ -83,6 +83,7 @@ int main(void){
                     if(ledLeft == ON  && ledRight == ON){    //&& ledRight == ON
                         if (switchFlag == 1){
                             State = Drive;
+                            switchFlag = 0;
                         }
                     }
                     switchFlag = 0;
@@ -92,10 +93,9 @@ int main(void){
                     //leftWheel=10000;
                     //rightWheel=10000;
                     readFromADC();
-                    adjustLED();
+                    //adjustLED();
                     calculateODC();
                     delayMs(20);
-                    
                     break;
         }
     }
@@ -113,74 +113,82 @@ void __ISR(_CHANGE_NOTICE_VECTOR, IPL7SRS) _CNInterrupt()
 //when pot is rotated all the way the respective motor should be going full speed
 
 void calculateODC(){
-    if (endFlag == 0){
-        if(left<30 && right<30){
+    if (endFlag == 0){  //endFlag == 0
+        /*if(left<500 && right<500){
            endFlag = 1;
            leftWheel = 0;
-           rightWheel=7500;
+           rightWheel=6000;
         }
-        else if(left<30){
-            leftWheel = 5000;
+        else */if(left<400){
+            leftWheel = 0;
             rightWheel=6000;
         }
-        else if(right<30){
-            leftWheel = 6000;
-            rightWheel=5000;  
+        else if(right<400){
+            leftWheel = 7000;
+            rightWheel=0;  
         }
-        else{
-            leftWheel=7500;
-            rightWheel=7500;
+        else {
+            leftWheel=6500;
+            rightWheel=5500;
         }
     }
-    else if(endFlag == 1){
+    else{
+        leftWheel = 0;
+        rightWheel = 0;
+    }
+    /*else if(endFlag == 1){
         while (endFlag == 1){
-            if(left < 30 && right < 30){
+            if(left < 500 && right < 500){
                 endFlag = 0;
                 leftWheel = 6000;
                 rightWheel= 6000;
                 break;
             }
         }
-    }
+    }*/
 }
 
 void readFromADC(){
     if(IFS0bits.AD1IF == 1){
-        volatile int *buffer = &ADC1BUF0;
-        left = *buffer;
-        right = *(buffer+1);
-        front = *(buffer+2);
-        
+        left = ADC1BUF0;
+        right=ADC1BUF1;
+        front=ADC1BUF2;   
         IFS0bits.AD1IF = 0;
     }
 }
 
+
+
 void adjustLED(){
-    if (left > 30){
+    if (front > 400){
         ledLeft = ON;
     }
     else{
         ledLeft = OFF;
     }
-    if (right > 30){
+    /*if (right > 500){
         ledRight = ON;
     }
     else{
         ledRight = OFF;
-    }
+    }*/
 }
 
 void lineUP(){
-    if (left > 30){
+    if (left > 500){
         ledLeft = ON;
     }
     else{
         ledLeft = OFF;
     }
-    if (right > 30){
+    if (right > 500){
         ledRight = ON;
     }
     else{
         ledRight = OFF;
+    }
+    if (front > 500){
+        ledRight = OFF;
+        ledLeft = OFF;
     }
 }
