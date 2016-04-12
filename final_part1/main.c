@@ -53,6 +53,7 @@ int right = 0;
 int front = 0;
 int back = 0;
 int endFlag = 0;
+int DLoop = 0;
 
 int main(void){
     SYSTEMConfigPerformance(10000000);
@@ -113,39 +114,52 @@ void __ISR(_CHANGE_NOTICE_VECTOR, IPL7SRS) _CNInterrupt()
 //when pot is rotated all the way the respective motor should be going full speed
 
 void calculateODC(){
-    if (endFlag == 0){  //endFlag == 0
-        /*if(left<500 && right<500){
-           endFlag = 1;
-           leftWheel = 0;
-           rightWheel=6000;
+    if (endFlag == 0){  
+        if(left<400 && right<400 && front<400){
+           DLoop++;
+           delayMs(400);
+           if(DLoop == 2){
+                endFlag = 1;
+                delayMs(650);
+                leftWheel = 0;
+                rightWheel=9500;
+                delayMs(750);
+                delayMs(750);
+                DLoop = 0;
+           }
         }
-        else */if(left<400){
+        /*else if(left<400 && front <400){
+            leftWheel= 8250;
+            rightWheel= 7550;
+        }*/
+        else if(left<400){
             leftWheel = 0;
-            rightWheel=6000;
+            rightWheel= 6500;
         }
         else if(right<400){
-            leftWheel = 7000;
-            rightWheel=0;  
+            leftWheel = 6500;
+            rightWheel= 0;  
         }
         else {
-            leftWheel=6500;
-            rightWheel=5500;
+            leftWheel= 8250;
+            rightWheel= 7550;
         }
+    }
+    else if(endFlag == 1){
+        /*while (endFlag == 1){
+            if(left < 400 && right < 400){*/
+                endFlag = 0;
+                leftWheel = 5000;
+                rightWheel= 5000;
+                delayMs(1000);
+                //break;
+           // }
+       // }
     }
     else{
         leftWheel = 0;
         rightWheel = 0;
     }
-    /*else if(endFlag == 1){
-        while (endFlag == 1){
-            if(left < 500 && right < 500){
-                endFlag = 0;
-                leftWheel = 6000;
-                rightWheel= 6000;
-                break;
-            }
-        }
-    }*/
 }
 
 void readFromADC(){
