@@ -120,10 +120,15 @@ void calculateODC(){
            delayMs(400);
            if(DLoop == 2){
                 endFlag = 1;
-                delayMs(650);
+                delayMs(800);
+                delayMs(600);
                 leftWheel = 0;
-                rightWheel=9500;
-                delayMs(750);
+                rightWheel = 9500;
+                delayMs(800);
+                delayMs(400);
+               // delayMs(750);
+                leftWheel = 8000;
+                rightWheel = 0;
                 delayMs(750);
                 DLoop = 0;
            }
@@ -149,9 +154,10 @@ void calculateODC(){
         /*while (endFlag == 1){
             if(left < 400 && right < 400){*/
                 endFlag = 0;
-                leftWheel = 5000;
-                rightWheel= 5000;
+                leftWheel = 4000;
+                rightWheel= 4000;
                 delayMs(1000);
+                endFlag = 0;
                 //break;
            // }
        // }
@@ -168,6 +174,7 @@ void readFromADC(){
         right=ADC1BUF1;
         front=ADC1BUF2;   
         IFS0bits.AD1IF = 0;
+        
     }
 }
 
