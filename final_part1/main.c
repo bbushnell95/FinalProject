@@ -1,4 +1,4 @@
-#include <xc.h>
+p#include <xc.h>
 #include <sys/attribs.h>
 #include <string.h>
 #include "lcd.h"
@@ -75,6 +75,7 @@ int main(void){
     pin2=OFF;
     while(1){
         //read from the three sensors
+        // TO DO: SET ADC VOLTAGE REFERENCES......
         readFromADC();
         calculateODC();
         
@@ -94,22 +95,22 @@ int main(void){
 
 void calculateODC(){
     if (endFlag == 0){
-        if(left>1000 && right>1000){
+        if(left > 1000 && right > 1000){
            endFlag = 1;
            leftWheel = 0;
-           rightWheel=7500;
+           rightWheel = 7500;
         }
-        else if(left>1000){
+        else if(left > 1000){
             leftWheel = 5000;
-            rightWheel=6000;
+            rightWheel = 6000;
         }
-        else if(right>1000){
+        else if(right > 1000){
             leftWheel = 6000;
-            rightWheel=5000;  
+            rightWheel = 5000;  
         }
         else{
-            leftWheel=7500;
-            rightWheel=7500;
+            leftWheel = 7500;
+            rightWheel = 7500;
         }
     }
     else if(endFlag == 1){
@@ -117,7 +118,7 @@ void calculateODC(){
             if(left < 1000 && right < 1000){
                 endFlag = 0;
                 leftWheel = 6000;
-                rightWheel= 6000;
+                rightWheel = 6000;
                 break;
             }
         }
