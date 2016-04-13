@@ -120,23 +120,46 @@ void calculateODC(){
            delayMs(400);
            if(DLoop == 2){
                 endFlag = 1;
-                delayMs(800);
-                delayMs(600);
-                leftWheel = 0;
-                rightWheel = 9500;
-                delayMs(800);
-                delayMs(400);
-               // delayMs(750);
-                leftWheel = 8000;
-                rightWheel = 0;
-                delayMs(750);
+                
+                /*pin2=ON;
+                pin1=OFF;
+                leftWheel=10000;
+                rightWheel=0;
+                delayMs(20);
+                
+                pin2=OFF;
+                pin1=ON;
+                leftWheel=0;
+                rightWheel=10000;
+                delayMs(20);*/
+                
+                leftWheel= 9000;
+                rightWheel= 0;
+                delayMs(900);
+                delayMs(900);
+                delayMs(900);
+                DLoop=0;
+                //adjusting when front sensor hits black
+                if(front < 400){
+                    leftWheel = 0;
+                    rightWheel = 4000;
+                    // detect black line opposite sensor to return
+                    // break 
+                    delayMs(30);    
+                }
+                
+                
+//                leftWheel = 0;
+//                rightWheel = 10000;
+//                delayMs(700);
+//                delayMs(300);
                 DLoop = 0;
            }
         }
-        /*else if(left<400 && front <400){
+        else if(left<400 && front <400){
             leftWheel= 8250;
             rightWheel= 7550;
-        }*/
+        }
         else if(left<400){
             leftWheel = 0;
             rightWheel= 6500;
@@ -153,10 +176,11 @@ void calculateODC(){
     else if(endFlag == 1){
         /*while (endFlag == 1){
             if(left < 400 && right < 400){*/
-                endFlag = 0;
-                leftWheel = 4000;
-                rightWheel= 4000;
-                delayMs(1000);
+                         
+                leftWheel = 7000;
+                rightWheel= 6000;
+                
+                delayMs(500);
                 endFlag = 0;
                 //break;
            // }
